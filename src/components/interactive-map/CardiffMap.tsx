@@ -14,7 +14,7 @@ interface SelectedFeature {
 }
 
 interface CardiffMapProps {
-  mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean }
+  mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean, showPark: boolean, showSchool: boolean }
 }
 
 // make it understand how to read .pmtiles files
@@ -26,6 +26,36 @@ export default function CardiffMap(
   {mapLayers}: CardiffMapProps
 ) {
   const [selectedFeature, setSelectedFeature] = useState<SelectedFeature | null>(null);
+
+  const schoolLayer: LayerProps = {
+    id: 'schools',
+    type: 'line',
+    source: 'schools',
+    paint: {
+      'line-color': '#ff5a5f',
+      'line-width': 2
+    }
+  };
+
+    const parkLayer: LayerProps = {
+    id: 'parks',
+    type: 'line',
+    source: 'parks',
+    paint: {
+      'line-color': '#57cc99',
+      'line-width': 2
+    }
+  };
+  
+  const gpLayer: LayerProps = {
+    id: 'gp-practices',
+    type: 'line',
+    source: 'gp_practices',
+    paint: {
+      'line-color': '#ffffff',
+      'line-width': 2
+    }
+  };
 
   const roadLayer : LayerProps= {
     id: 'roads',
@@ -73,7 +103,19 @@ export default function CardiffMap(
           </div>
         </Popup>
       )}
-      
+
+      {mapLayers.showPark && (<Source id="parks" type="geojson" data="/dissolved_parks2.geojson">
+        <Layer {...parkLayer} />
+      </Source>)}
+
+      {mapLayers.showSchool && (<Source id="schools" type="geojson" data="/schools.geojson">
+        <Layer {...schoolLayer} />
+      </Source>)}
+
+      {mapLayers.showGP && (<Source id="gp_practices" type="geojson" data="/gp_practices.geojson">
+        <Layer {...gpLayer} />
+      </Source>)}
+
       {mapLayers.showStreetNetwork && (<Source id="edges" type="geojson" data="/edges.geojson">
         <Layer {...roadLayer} />
       </Source>)}

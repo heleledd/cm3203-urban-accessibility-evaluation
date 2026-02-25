@@ -11,6 +11,8 @@ function App() {
     showStreetNetwork: false,
     showGrid: false,
     showGP: false,
+    showPark: false,
+    showSchool: false
   })
 
   const toggleLayer = (layer: keyof typeof mapLayers) =>

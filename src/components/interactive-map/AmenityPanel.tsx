@@ -2,7 +2,7 @@ import { useState } from 'react'
 import LikertSlider from './LikertSlider.tsx'
 
 interface AmenityPanelProps {
-  mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean }
+  mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean, showPark: boolean, showSchool: boolean }
   toggleLayer: (layer: keyof AmenityPanelProps['mapLayers']) => void
 }
 
@@ -20,9 +20,11 @@ export default function AmenityPanel(
     })
 
     const LAYER_LABELS: Record<keyof typeof mapLayers, string> = {
-        showStreetNetwork: 'Show street network',
-        showGrid: 'Show grid',
-        showGP: 'Show GP practices',
+        showStreetNetwork: 'Street Network',
+        showGrid: 'Grid',
+        showGP: 'GP practices',
+        showPark: 'Parks',
+        showSchool: 'Schools'
         }
 
     return (

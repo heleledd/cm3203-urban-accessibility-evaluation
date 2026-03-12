@@ -1,23 +1,13 @@
-import { useState } from 'react'
 import LikertSlider from './LikertSlider.tsx'
 
 interface AmenityPanelProps {
-  mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean, showPark: boolean, showSchool: boolean }
-  toggleLayer: (layer: keyof AmenityPanelProps['mapLayers']) => void
+    mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean, showPark: boolean, showSchool: boolean }
+    toggleLayer: (layer: keyof AmenityPanelProps['mapLayers']) => void
+    weights: {gp: number, school: number, park: number}
+    updateWeight: (amenity: 'gp' | 'school' | 'park', value: number) => void 
 }
 
-export default function AmenityPanel(
-    {
-        mapLayers,
-        toggleLayer
-    }: AmenityPanelProps) 
-    
-    {
-        const [weights, setWeights] = useState({
-            hospital: 3,
-            school: 3,
-            park: 3
-    })
+export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight}: AmenityPanelProps) {
 
     const LAYER_LABELS: Record<keyof typeof mapLayers, string> = {
         showStreetNetwork: 'Street Network',
@@ -33,18 +23,18 @@ export default function AmenityPanel(
             <div className="all-likert-container">
                 <LikertSlider
                     label="GP"
-                    value={weights.hospital}
-                    onChange={(val) => setWeights(prev => ({ ...prev, hospital: val }))}
+                    value={weights.gp}
+                    onChange={(val) => updateWeight('gp', val)}
                 />
                 <LikertSlider
                     label="School"
                     value={weights.school}
-                    onChange={(val) => setWeights(prev => ({ ...prev, school: val }))}
+                    onChange={(val) => updateWeight('school', val)}
                 />
                 <LikertSlider
-                    label="Hospital"
+                    label="Park"
                     value={weights.park}
-                    onChange={(val) => setWeights(prev => ({ ...prev, park: val }))}
+                    onChange={(val) => updateWeight('park', val)}
                 />
             </div>
             <div className="map-options-container">

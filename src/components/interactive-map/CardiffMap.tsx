@@ -67,7 +67,6 @@ export default function CardiffMap(
 	const handleClick = (e: MapLayerMouseEvent) => {
 		// DEBUG: Log the event to see what was clicked
 		console.log('Map Clicked:', e.lngLat, 'Features found:', e.features);
-		debugger; // This will pause the code execution in your browser
 		const features = e.features;
 		if (!features || features.length === 0) {
 		setSelectedFeature(null);
@@ -104,7 +103,7 @@ export default function CardiffMap(
 			style={{ width: '95%', height: '100vh' }}
 			mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
 			onClick={handleClick}
-			interactiveLayerIds={['schools', 'parks', 'gp-practices']}
+			interactiveLayerIds={['schools', 'parks', 'gp-practices', 'accessibility-score']}
 		>
 		{selectedFeature && (
 			<Popup
@@ -115,6 +114,7 @@ export default function CardiffMap(
 			>
 			<div>
 				<h3>Cell Stats</h3>
+				<h4>Accessibility Score: {selectedFeature.properties.accessibilityScore?.toFixed(2)}</h4>
 				<p>Nearest GP practice: {selectedFeature.properties.nearest_gp?.toFixed(2)}m</p>
 				<p>Nearest school: {selectedFeature.properties.nearest_school?.toFixed(2)}m</p>
 				<p>Nearest park: {selectedFeature.properties.nearest_park?.toFixed(2)}m</p>
@@ -122,15 +122,15 @@ export default function CardiffMap(
 			</Popup>
 		)}
 
-		{mapLayers.showPark && (<Source id="parks" type="geojson" data="/dissolved_parks2.geojson">
+		{mapLayers.showPark && (<Source id="parks" type="geojson" data="cardiff/park.geojson">
 			<Layer {...parkLayer} />
 		</Source>)}
 
-		{mapLayers.showSchool && (<Source id="schools" type="geojson" data="/schools.geojson">
+		{mapLayers.showSchool && (<Source id="schools" type="geojson" data="cardiff/school.geojson">
 			<Layer {...schoolLayer} />
 		</Source>)}
 
-		{mapLayers.showGP && (<Source id="gp_practices" type="geojson" data="/gp_practices.geojson">
+		{mapLayers.showGP && (<Source id="gp_practices" type="geojson" data="cardiff/gp.geojson">
 			<Layer {...gpLayer} />
 		</Source>)}
 
@@ -144,20 +144,20 @@ export default function CardiffMap(
 			type="geojson" 
 			data={accessibilityScores}
 			>
-			{/* <Layer
-				id="hospital-distance"
+			<Layer
+				id="accessibility-score"
 				type="fill"
 				paint={{
 				'fill-color': [
 					'interpolate', ['linear'],
-					['get', 'nearest_hospital'],
-					0, '#22c55e',
-					500, '#eab308',
-					1500, '#ef4444'
+					['get', 'accessibilityScore'],
+					30, '#ef4444',
+					70, '#eab308',
+					100, '#22c55e'
 				],
 				'fill-opacity': 0.7
 				}}
-			/> */}
+			/>
 		</Source>)}
 		</Map>
 	);

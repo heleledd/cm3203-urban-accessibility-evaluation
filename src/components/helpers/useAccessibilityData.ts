@@ -34,12 +34,12 @@ export function useAccessibilityData(weights: Weights) {
 				const values = (data.features
 					.map(f => f.properties)
 					.filter((p): p is NonNullable<typeof p> => p !== null && p !== undefined)
-                )as Array<{ nearest_hospital: number; nearest_school: number; nearest_park: number }>
+                )as Array<{ nearest_gp: number; nearest_school: number; nearest_park: number }>
 
 				const stats: DistanceStats = {
 					gp: {
-						min: Math.min(...values.map(p => p.nearest_hospital)),
-						max: Math.max(...values.map(p => p.nearest_hospital))
+						min: Math.min(...values.map(p => p.nearest_gp)),
+						max: Math.max(...values.map(p => p.nearest_gp))
 					},
 					school: {
 						min: Math.min(...values.map(p => p.nearest_school)),
@@ -62,13 +62,13 @@ export function useAccessibilityData(weights: Weights) {
 			...gridData,
 			features: gridData.features.map(feature => {
 				const p = feature.properties as {
-					nearest_hospital: number
+					nearest_gp: number
 					nearest_school: number
 					nearest_park: number
 				}
 
 				const score = calculateScore(
-					{ gp: p.nearest_hospital, school: p.nearest_school, park: p.nearest_park },
+					{ gp: p.nearest_gp, school: p.nearest_school, park: p.nearest_park },
 					weights,
 					{
 						min: { gp: distanceStats.gp.min, school: distanceStats.school.min, park: distanceStats.park.min },

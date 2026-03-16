@@ -1,11 +1,13 @@
 import Map, { Source, Layer, Popup } from 'react-map-gl/maplibre';
-import type { MapLayerMouseEvent, LayerProps } from 'react-map-gl/maplibre';
-import { useState } from 'react';
+import type { MapLayerMouseEvent, LayerProps, MapRef } from 'react-map-gl/maplibre';
+import type { GeoJSONSource } from 'maplibre-gl';
+import { useState, useRef, useEffect } from 'react';
 
 interface SelectedFeature {
 	longitude: number;
 	latitude: number;
 	properties: {
+		grid_id: number;
 		nearest_gp?: number;
 		nearest_school?: number;
 		nearest_park?: number;
@@ -22,6 +24,39 @@ export default function CardiffMap(
   	{mapLayers, accessibilityScores}: CardiffMapProps
 ) {
   	const [selectedFeature, setSelectedFeature] = useState<SelectedFeature | null>(null);
+
+	const mapRef = useRef<MapRef>(null);
+
+	// pushes the new data to the map once the sliders are moved
+	useEffect(() => {
+        if (mapRef.current && accessibilityScores) {
+            const source = mapRef.current.getSource('cardiff') as GeoJSONSource;
+            if (source && source.type === 'geojson') {
+                source.setData(accessibilityScores);
+            }
+        }
+    }, [accessibilityScores]);
+
+
+	// keeps the sliders consistent if the slider moves
+	useEffect(() => {
+        // If a popup is open AND the scores have just updated...
+        if (selectedFeature && accessibilityScores) {
+            
+            // Find the exact same grid cell in the new data by matching its grid_id
+            const updatedCell = accessibilityScores.features.find(feature => 
+                feature.properties?.grid_id === selectedFeature.properties.grid_id
+            );
+
+            // If we found the matching cell, update the popup's state with the fresh accessibility score
+            if (updatedCell) {
+                setSelectedFeature(prev => prev ? {
+                    ...prev,
+                    properties: updatedCell.properties as SelectedFeature['properties']
+                } : null);
+            }
+        }
+    }, [accessibilityScores]);
 
   	const schoolLayer: LayerProps = {
 		id: 'schools',
@@ -76,7 +111,7 @@ export default function CardiffMap(
 		setSelectedFeature({
 			longitude: e.lngLat.lng,
 			latitude: e.lngLat.lat,
-			properties: features[0].properties
+			properties: features[0].properties as SelectedFeature['properties']
 		});
 	};
 
@@ -99,6 +134,7 @@ export default function CardiffMap(
 
 	return (
 		<Map
+			ref={mapRef}
 			initialViewState={{ longitude: -3.175, latitude: 51.501, zoom: 13 }}
 			style={{ width: '95%', height: '100vh' }}
 			mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
@@ -148,14 +184,18 @@ export default function CardiffMap(
 				id="accessibility-score"
 				type="fill"
 				paint={{
-				'fill-color': [
+					'fill-color': [
 					'interpolate', ['linear'],
 					['get', 'accessibilityScore'],
-					30, '#ef4444',
-					70, '#eab308',
-					100, '#22c55e'
-				],
-				'fill-opacity': 0.7
+					
+					30, '#ef4444',  
+					60, '#f97316',  
+					70, '#eab308',  
+					80, '#9deb56',  
+					90, '#22c55e',  
+					95, '#15803d',
+					],
+					'fill-opacity': 0.5
 				}}
 			/>
 		</Source>)}

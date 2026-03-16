@@ -7,17 +7,18 @@ interface LikertSliderProps {
     onChange: (value: number) => void;
 }
 
-export default function LikertSlider({ label }: LikertSliderProps) {
+export default function LikertSlider({ label, value, onChange }: LikertSliderProps) {
     
     return (
         <div className="likert-slider-container">
             <p>{label}</p>
             <Slider 
-                defaultValue={3} 
+                value={value} 
+                onChange={(_, newValue) => onChange(newValue as number)} 
                 valueLabelDisplay="auto" 
                 step={1} 
                 marks 
-                min={1} 
+                min={0} 
                 max={5}
             />
         </div>

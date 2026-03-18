@@ -20,15 +20,17 @@ export type Weights = {
 	park: number
 }
 
-export function useAccessibilityData(weights: Weights) {
+export function useAccessibilityData(weights: Weights, city: String) {
 	const [gridData, setGridData] = useState<GeoJSON.FeatureCollection | null>(null)
 	const [distanceStats, setDistanceStats] = useState<DistanceStats | null>(null)
 
 	// Fetch and calculate stats once on mount
 	useEffect(() => {
-		fetch('/cardiff/grid_cells_accessibility.geojson')
+		console.log(`Attempting to fetch data for: ${city}`);
+		fetch(`/${city}/grid_cells_accessibility.geojson`)
 			.then(res => res.json())
 			.then((data: GeoJSON.FeatureCollection) => {
+				console.log(`Successfully loaded ${city} data with ${data.features.length} features!`);
 				setGridData(data)
 
 				const values = (data.features
@@ -52,7 +54,7 @@ export function useAccessibilityData(weights: Weights) {
 				}
 				setDistanceStats(stats)
 			})
-	}, [])
+	}, [city])
 
 	// Recalculate scores whenever weights change
 	const accessibilityScores = useMemo<GeoJSON.FeatureCollection | null>(() => {

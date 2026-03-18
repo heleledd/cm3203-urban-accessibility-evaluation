@@ -1,7 +1,7 @@
 import Header from './Header.tsx'
 import Footer from './Footer.tsx'
 import { useState } from 'react'
-import CardiffMap from './interactive-map/CardiffMap.tsx'
+import InteractiveMap from './interactive-map/InteractiveMap.tsx'
 import AmenityPanel from './interactive-map/AmenityPanel.tsx'
 import { useAccessibilityData } from './helpers/useAccessibilityData'
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -21,6 +21,8 @@ function App() {
 		setMapLayers(prev => ({ ...prev, [layer]: !prev[layer] }))
 	}
 
+	const [city, setCity] = useState('cardiff');
+
 	const [weights, setWeights] = useState({
 		gp: 3,
 		school: 3,
@@ -34,21 +36,24 @@ function App() {
 
 	// calculate accessibility score for every grid using the stats loaded from 'distance_to_3_amenities.geojson' 
 	// and weights the user has entered using the sliders
-	const { accessibilityScores}= useAccessibilityData(weights);
+	const { accessibilityScores}= useAccessibilityData(weights, city);
 	
 	return (
 		<>
 			<Header />
 			<div className="display-container">
-				<CardiffMap 
+				<InteractiveMap 
 					mapLayers={mapLayers}
 					accessibilityScores={accessibilityScores}
+					city={city}
 				/>
 				<AmenityPanel 
 					mapLayers={mapLayers}
 					toggleLayer={toggleLayer}
 					weights={weights}
 					updateWeight={updateWeight}
+					city={city}
+					setCity={setCity}
 				/>
 			</div>
 			<Footer />

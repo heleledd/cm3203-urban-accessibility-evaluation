@@ -4,10 +4,12 @@ interface AmenityPanelProps {
     mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean, showPark: boolean, showSchool: boolean }
     toggleLayer: (layer: keyof AmenityPanelProps['mapLayers']) => void
     weights: {gp: number, school: number, park: number}
-    updateWeight: (amenity: 'gp' | 'school' | 'park', value: number) => void 
+    updateWeight: (amenity: 'gp' | 'school' | 'park', value: number) => void
+    city: string
+    setCity: (city: string) => void
 }
 
-export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight}: AmenityPanelProps) {
+export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight, city, setCity}: AmenityPanelProps) {
 
     const LAYER_LABELS: Record<keyof typeof mapLayers, string> = {
         showStreetNetwork: 'Street Network',
@@ -19,6 +21,14 @@ export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWei
 
     return (
         <div className="amenity-panel-container">
+            {/* dropdown to change which city is shown */}
+            <div className="city-dropdown-container">
+                <select value={city} onChange={(e) => setCity(e.target.value)}>
+                    <option value="cardiff">Cardiff</option>
+                    <option value="bristol">Bristol</option>
+                    <option value="swansea">Swansea</option>
+                </select></div>
+            
             <h3>Indicate how important proximity to these amentities is to you</h3>
             <div className="all-likert-container">
                 <LikertSlider

@@ -1,32 +1,37 @@
+import { AMENITIES } from './amenitiesConfig'
+
 export function calculateScore(
-    distances: { gp: number; school: number; park: number },
-    weights: { gp: number; school: number; park: number },
+    distances: Record<string, number>,
+    weights: Record<string, number>,
     stats: { min: Record<string, number>; max: Record<string, number> }
 ): number {
 
-    const total = weights.gp + weights.school + weights.park;
+    // const total = weights.gp + weights.school + weights.park;
+    const totalWeight = AMENITIES.reduce((sum, amenity) => sum + weights[amenity.id], 0);
     
-    // find out what to multiply each by the user's preference in the end
-    const w = {
-        gp: weights.gp / total,
-        school: weights.school / total,
-        park: weights.park / total
-    };
+    if (totalWeight === 0) return 0;
 
-    // normalise - althought they're in the same weight, they'll have different ranges
-    // if just raw distances were combined, the variable with the largest range would dominate the score and the weighting would have less effect
-    const normalise = (val: number, key: string) =>
-    (val - stats.min[key]) / (stats.max[key] - stats.min[key]);
+let totalScore = 0;
 
-    // accessibility = 1 - distance (reverse it because smaller distance -> better access) --> 0 is worst access, 1 is best access :))
-    const acc = {
-        gp: 1 - normalise(distances.gp, 'gp'),
-        school: 1 - normalise(distances.school, 'school'),
-        park: 1 - normalise(distances.park, 'park')
-    };
+    // Loop through each amenity to calculate its portion of the score
+    AMENITIES.forEach(amenity => {
+        const id = amenity.id;
+        const w = weights[id] / totalWeight;
+        
+        const min = stats.min[id];
+        const max = stats.max[id];
+        const val = distances[id];
 
-    // multiply the accessibility score with the weights, multiply by 100, round to 2 decimal places
-    const score = parseFloat(((w.gp * acc.gp + w.school * acc.school + w.park * acc.park) * 100).toFixed(2));
+        // 3. Normalise and invert (1 - distance)
+        let normalized = 0;
+        if (max > min) {
+            normalized = (val - min) / (max - min);
+        }
+        
+        const acc = 1 - normalized;
+        totalScore += (w * acc);
+    });
 
-    return score
+    // Multiply by 100 and round to 2 decimal places
+    return parseFloat((totalScore * 100).toFixed(2));
 }

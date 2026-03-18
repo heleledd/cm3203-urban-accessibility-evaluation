@@ -2,86 +2,74 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { calculateScore } from './calculateScore'
+import { AMENITIES } from './amenitiesConfig'
 
-interface AmenityStats {
-	min: number
-	max: number
-}
+// interface AmenityStats {
+// 	min: number
+// 	max: number
+// }
 
-export type DistanceStats = {
-	gp: AmenityStats
-	school: AmenityStats
-	park: AmenityStats
-}
+// export type DistanceStats = {
+// 	gp: AmenityStats
+// 	school: AmenityStats
+// 	park: AmenityStats
+// }
 
-export type Weights = {
-	gp: number
-	school: number
-	park: number
-}
+// export type Weights = {
+// 	gp: number
+// 	school: number
+// 	park: number
+// }
 
-export function useAccessibilityData(weights: Weights, city: String) {
+export function useAccessibilityData(weights: Record<string, number>, city: String) {
 	const [gridData, setGridData] = useState<GeoJSON.FeatureCollection | null>(null)
-	const [distanceStats, setDistanceStats] = useState<DistanceStats | null>(null)
-
-	// Fetch and calculate stats once on mount
+	const [distanceStats, setDistanceStats] = useState<{ min: Record<string, number>; max: Record<string, number> } | null>(null)
+	
+	// Fetch and calculate distance stats once on mount
 	useEffect(() => {
-		console.log(`Attempting to fetch data for: ${city}`);
-		fetch(`/${city}/grid_cells_accessibility.geojson`)
-			.then(res => res.json())
-			.then((data: GeoJSON.FeatureCollection) => {
-				console.log(`Successfully loaded ${city} data with ${data.features.length} features!`);
-				setGridData(data)
+        fetch(`/${city}/grid_cells_accessibility.geojson`)
+            .then(res => res.json())
+            .then((data: GeoJSON.FeatureCollection) => {
+                setGridData(data)
 
-				const values = (data.features
-					.map(f => f.properties)
-					.filter((p): p is NonNullable<typeof p> => p !== null && p !== undefined)
-                )as Array<{ nearest_gp: number; nearest_school: number; nearest_park: number }>
+                const properties = data.features
+                    .map(f => f.properties)
+                    .filter(p => p !== null && p !== undefined);
 
-				const stats: DistanceStats = {
-					gp: {
-						min: Math.min(...values.map(p => p.nearest_gp)),
-						max: Math.max(...values.map(p => p.nearest_gp))
-					},
-					school: {
-						min: Math.min(...values.map(p => p.nearest_school)),
-						max: Math.max(...values.map(p => p.nearest_school))
-					},
-					park: {
-						min: Math.min(...values.map(p => p.nearest_park)),
-						max: Math.max(...values.map(p => p.nearest_park))
-					}
-				}
-				setDistanceStats(stats)
-			})
-	}, [city])
+                // Dynamically find min and max for all amenities
+                const min: Record<string, number> = {};
+                const max: Record<string, number> = {};
+
+                AMENITIES.forEach(amenity => {
+                    const values = properties.map(p => p![amenity.propertyKey]);
+                    min[amenity.id] = Math.min(...values);
+                    max[amenity.id] = Math.max(...values);
+                });
+
+                setDistanceStats({ min, max });
+            })
+    }, [city])
 
 	// Recalculate scores whenever weights change
-	const accessibilityScores = useMemo<GeoJSON.FeatureCollection | null>(() => {
-		if (!gridData || !distanceStats) return null
+const accessibilityScores = useMemo<GeoJSON.FeatureCollection | null>(() => {
+        if (!gridData || !distanceStats) return null
 
-		return {
-			...gridData,
-			features: gridData.features.map(feature => {
-				const p = feature.properties as {
-					nearest_gp: number
-					nearest_school: number
-					nearest_park: number
-				}
+        return {
+            ...gridData,
+            features: gridData.features.map(feature => {
+                const p = feature.properties as any;
+                
+                // Extract only the distances required for scoring
+                const distances: Record<string, number> = {};
+                AMENITIES.forEach(amenity => {
+                    distances[amenity.id] = p[amenity.propertyKey];
+                });
 
-				const score = calculateScore(
-					{ gp: p.nearest_gp, school: p.nearest_school, park: p.nearest_park },
-					weights,
-					{
-						min: { gp: distanceStats.gp.min, school: distanceStats.school.min, park: distanceStats.park.min },
-						max: { gp: distanceStats.gp.max, school: distanceStats.school.max, park: distanceStats.park.max }
-					}
-				)
+                const score = calculateScore(distances, weights, distanceStats);
 
-				return { ...feature, properties: { ...p, accessibilityScore: score } }
-			})
-		}
-	}, [weights, gridData, distanceStats])
-
+                return { ...feature, properties: { ...p, accessibilityScore: score } }
+            })
+        }
+    }, [weights, gridData, distanceStats])
 	return { accessibilityScores }
 }

@@ -1,23 +1,20 @@
 import LikertSlider from './LikertSlider.tsx'
+import { AMENITIES } from '../helpers/amenitiesConfig.ts'
 
 interface AmenityPanelProps {
-    mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean, showPark: boolean, showSchool: boolean }
-    toggleLayer: (layer: keyof AmenityPanelProps['mapLayers']) => void
-    weights: {gp: number, school: number, park: number}
-    updateWeight: (amenity: 'gp' | 'school' | 'park', value: number) => void
+    mapLayers: Record<string, boolean>
+    toggleLayer: (layer: string) => void
+    weights: Record<string, number>
+    updateWeight: (amenityId: string, value: number) => void
     city: string
     setCity: (city: string) => void
 }
-
 export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight, city, setCity}: AmenityPanelProps) {
 
-    const LAYER_LABELS: Record<keyof typeof mapLayers, string> = {
+    const BASE_LABELS: Record<string, string> = {
         showStreetNetwork: 'Street Network',
         showGrid: 'Grid',
-        showGP: 'GP practices',
-        showPark: 'Parks',
-        showSchool: 'Schools'
-        }
+    };
 
     return (
         <div className="amenity-panel-container">
@@ -31,32 +28,35 @@ export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWei
             
             <h3>Indicate how important proximity to these amentities is to you</h3>
             <div className="all-likert-container">
-                <LikertSlider
-                    label="GP"
-                    value={weights.gp}
-                    onChange={(val) => updateWeight('gp', val)}
-                />
-                <LikertSlider
-                    label="School"
-                    value={weights.school}
-                    onChange={(val) => updateWeight('school', val)}
-                />
-                <LikertSlider
-                    label="Park"
-                    value={weights.park}
-                    onChange={(val) => updateWeight('park', val)}
-                />
+                {AMENITIES.map((amenity) => (
+                    <LikertSlider
+                        key={amenity.id}
+                        label={amenity.label}
+                        value={weights[amenity.id] || 0}
+                        onChange={(val) => updateWeight(amenity.id, val)}
+                    />
+                ))}
             </div>
+            
             <div className="map-options-container">
-                {(Object.keys(mapLayers) as Array<keyof typeof mapLayers>).map(key => (
+                {/* Render Base Layers */}
+                {Object.keys(BASE_LABELS).map(key => (
                     <div key={key}>
-                        <input
-                        type="checkbox"
-                        id={key}
-                        checked={mapLayers[key]}
-                        onChange={() => toggleLayer(key)}
+                        <input type="checkbox" id={key} checked={mapLayers[key]} onChange={() => toggleLayer(key)} />
+                        <label htmlFor={key}>{BASE_LABELS[key]}</label>
+                    </div>
+                ))}
+                
+                {/* Render Amenity Layers Dynamically */}
+                {AMENITIES.map(amenity => (
+                    <div key={amenity.id}>
+                        <input 
+                            type="checkbox" 
+                            id={amenity.id} 
+                            checked={mapLayers[amenity.id]} 
+                            onChange={() => toggleLayer(amenity.id)} 
                         />
-                        <label htmlFor={key}>{LAYER_LABELS[key]}</label>
+                        <label htmlFor={amenity.id}>{amenity.label}</label>
                     </div>
                 ))}
             </div>

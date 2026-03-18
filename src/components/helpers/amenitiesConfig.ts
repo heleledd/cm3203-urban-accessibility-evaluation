@@ -1,13 +1,16 @@
 export interface AmenityConfig {
-    id: string;        // Used for state keys and file names (e.g., 'gp', 'park')
-    label: string;     // What the user sees in the UI
-    color: string;     // The color on the map
-    defaultWeight: number; 
+    id: string;
+    label: string;
+    color: string;
+    defaultWeight: number;
+    geoJsonName: string;
+    propertyKey: string;
 }
 
 export const AMENITIES: AmenityConfig[] = [
-    { id: 'gp', label: 'GP Practices', color: '#ffffff', defaultWeight: 3 },
-    { id: 'school', label: 'Schools', color: '#ff5a5f', defaultWeight: 3 },
-    { id: 'park', label: 'Parks', color: '#57cc99', defaultWeight: 3 },
-    // { id: 'supermarket', label: 'Supermarkets', color: '#f59e0b', defaultWeight: 3 },
+    { id: 'gp', label: 'GP Practices', color: '#ffffff', defaultWeight: 3, geoJsonName: 'gp', propertyKey: 'nearest_gp' },
+    { id: 'school', label: 'Schools', color: '#ff5a5f', defaultWeight: 3, geoJsonName: 'school', propertyKey: 'nearest_school' },
+    { id: 'park', label: 'Parks', color: '#57cc99', defaultWeight: 3, geoJsonName: 'park', propertyKey: 'nearest_park' },
 ];
+
+export type AmenityId = typeof AMENITIES[number]['id'];

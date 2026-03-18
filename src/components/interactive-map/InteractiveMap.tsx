@@ -2,6 +2,7 @@ import Map, { Source, Layer, Popup } from 'react-map-gl/maplibre';
 import type { MapLayerMouseEvent, LayerProps, MapRef } from 'react-map-gl/maplibre';
 import type { GeoJSONSource } from 'maplibre-gl';
 import { useState, useRef, useEffect } from 'react';
+import { AMENITIES, type AmenityId } from '../helpers/amenitiesConfig'
 
 interface SelectedFeature {
 	longitude: number;
@@ -16,7 +17,7 @@ interface SelectedFeature {
 }
 
 interface MapProps {
-  	mapLayers: { showStreetNetwork: boolean; showGrid: boolean; showGP: boolean, showPark: boolean, showSchool: boolean }
+  	mapLayers: Record<string, boolean>;
 	accessibilityScores: GeoJSON.FeatureCollection | null;
 	city?: string;
 }
@@ -166,23 +167,25 @@ export default function InteractiveMap(
 			<div>
 				<h3>Cell Stats</h3>
 				<h4>Accessibility Score: {selectedFeature.properties.accessibilityScore?.toFixed(2)}</h4>
-				<p>Nearest GP practice: {selectedFeature.properties.nearest_gp?.toFixed(2)}m</p>
-				<p>Nearest school: {selectedFeature.properties.nearest_school?.toFixed(2)}m</p>
-				<p>Nearest park: {selectedFeature.properties.nearest_park?.toFixed(2)}m</p>
+				{AMENITIES.map(amenity => (
+					<p key={amenity.id}>
+						Nearest {amenity.label.toLowerCase()}: {(selectedFeature.properties as any)[amenity.propertyKey]?.toFixed(2)}m
+					</p>
+				))}
 			</div>
 			</Popup>)}
 
-			<Source id="parks" type="geojson" data={`/${city}/park.geojson`}>
-				<Layer {...parkLayer} layout={{ visibility: mapLayers.showPark ? 'visible' : 'none' }} />
-			</Source>
-
-			<Source id="schools" type="geojson" data={`/${city}/school.geojson`}>
-				<Layer {...schoolLayer} layout={{ visibility: mapLayers.showSchool ? 'visible' : 'none' }} />
-			</Source>
-
-			<Source id="gp_practices" type="geojson" data={`/${city}/gp.geojson`}>
-				<Layer {...gpLayer} layout={{ visibility: mapLayers.showGP ? 'visible' : 'none' }} />
-			</Source>
+			{AMENITIES.map((amenity) => (
+				<Source key={amenity.id} id={amenity.id} type="geojson" data={`/${city}/${amenity.geoJsonName}.geojson`}>
+					<Layer 
+						id={`layer-${amenity.id}`}
+						type="line"
+						source={amenity.id}
+						paint={{ 'line-color': amenity.color, 'line-width': 2 }}
+						layout={{ visibility: mapLayers[amenity.id] ? 'visible' : 'none' }} 
+					/>
+				</Source>
+			))}
 			{/* this isn't currently set up properly */}
 			<Source id="edges" type="geojson" data={`/${city}/edges.geojson`}>
 				<Layer {...roadLayer} layout={{ visibility: mapLayers.showStreetNetwork ? 'visible' : 'none' }} />

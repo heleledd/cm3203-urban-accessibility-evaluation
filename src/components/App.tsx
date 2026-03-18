@@ -4,35 +4,36 @@ import { useState } from 'react'
 import InteractiveMap from './interactive-map/InteractiveMap.tsx'
 import AmenityPanel from './interactive-map/AmenityPanel.tsx'
 import { useAccessibilityData } from './helpers/useAccessibilityData'
+import { AMENITIES, type AmenityId } from './helpers/amenitiesConfig'
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '../styles/app.css'
 
 function App() {
-	const [mapLayers, setMapLayers] = useState({
-		showStreetNetwork: false,
-		showGrid: false,
-		showGP: false,
-		showPark: false,
-		showSchool: false
-	})
+	// use settings from amenities config file
+	const initialMapLayers = AMENITIES.reduce((acc, amenity) => {
+        acc[amenity.id] = false;
+        return acc;
+    }, { showStreetNetwork: false, showGrid: false } as Record<string, boolean>);
+	
+	const [mapLayers, setMapLayers] = useState(initialMapLayers)
 
 	const toggleLayer = (layer: keyof typeof mapLayers) => {
-		console.log('Toggling layer:', layer);
 		setMapLayers(prev => ({ ...prev, [layer]: !prev[layer] }))
 	}
 
 	const [city, setCity] = useState('cardiff');
 
-	const [weights, setWeights] = useState({
-		gp: 3,
-		school: 3,
-		park: 3
-	})
+	// use settings from amenities config file
+	const initialWeights = AMENITIES.reduce((acc, amenity) => {
+        acc[amenity.id] = amenity.defaultWeight;
+        return acc;
+    }, {} as Record<string, number>);
+	
+	const [weights, setWeights] = useState(initialWeights)
 
-	const updateWeight = (amenity: 'gp' | 'school' | 'park', value: number) => {
-		console.log('Updating weight for:', amenity, 'New value:', value);
-		setWeights(prev => ({ ...prev, [amenity]: value }));
-	};
+	const updateWeight = (amenityId: string, value: number) => {
+        setWeights(prev => ({ ...prev, [amenityId]: value }));
+    };
 
 	// calculate accessibility score for every grid using the stats loaded from 'distance_to_3_amenities.geojson' 
 	// and weights the user has entered using the sliders

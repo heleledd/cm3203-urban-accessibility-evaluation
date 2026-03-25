@@ -19,11 +19,11 @@ interface SelectedFeature {
 interface MapProps {
   	mapLayers: Record<string, boolean>;
 	accessibilityScores: GeoJSON.FeatureCollection | null;
-	city?: string;
+	city: string;
 }
 
 export default function InteractiveMap(
-  	{mapLayers, accessibilityScores, city}: MapProps
+  	{mapLayers, accessibilityScores, city = 'cardiff'}: MapProps
 ) {
   	const [selectedFeature, setSelectedFeature] = useState<SelectedFeature | null>(null);
 
@@ -120,13 +120,20 @@ export default function InteractiveMap(
 	// change the map to show the new city once it changes
 	useEffect(() => {
         if (mapRef.current) {
-            // Define the coordinates for your cities
-            const center = city === 'cardiff' 
-                ? { lng: -3.175, lat: 51.501 } 
-                : { lng: -2.5879, lat: 51.4545 }; // Bristol coordinates
+            const cityLocations = {
+                cardiff: { lng: -3.175, lat: 51.501 },
+                bristol: { lng: -2.5879, lat: 51.4545 },
+                swansea: { lng: -3.9436, lat: 51.6214 } 
+            };
+
+			// saying to TypeScript's strict compiler that that the string stored in city matches 
+			const safeCityKey = city as keyof typeof cityLocations;
+
+            // (The '|| cityLocations.cardiff' is a safe fallback just in case)
+            const center = cityLocations[safeCityKey] || cityLocations.cardiff;
             
             mapRef.current.flyTo({ center, zoom: 12, duration: 1500 });
-            setSelectedFeature(null); // Close any open popup when changing cities
+            setSelectedFeature(null); 
         }
     }, [city]);
 

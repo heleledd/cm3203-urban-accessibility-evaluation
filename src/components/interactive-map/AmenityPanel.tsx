@@ -8,8 +8,10 @@ interface AmenityPanelProps {
     updateWeight: (amenityId: string, value: number) => void
     city: string
     setCity: (city: string) => void
+    activity: string
+    setActivity: (city: string) => void
 }
-export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight, city, setCity}: AmenityPanelProps) {
+export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight, city, setCity, activity, setActivity}: AmenityPanelProps) {
 
     const BASE_LABELS: Record<string, string> = {
         showStreetNetwork: 'Street Network',
@@ -24,7 +26,15 @@ export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWei
                     <option value="cardiff">Cardiff</option>
                     <option value="bristol">Bristol</option>
                     <option value="swansea">Swansea</option>
-                </select></div>
+                </select>
+            </div>
+
+            <div className="activity-dropdown-container">
+                <select value={activity} onChange={(e) => setActivity(e.target.value)}>
+                    <option value="walk">Walk</option>
+                    <option value="cycle">Cycle</option>
+                </select>
+            </div>
             
             <h3>Indicate how important proximity to these amentities is to you</h3>
             <div className="all-likert-container">

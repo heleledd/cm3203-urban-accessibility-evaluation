@@ -1,37 +1,39 @@
 import { AMENITIES } from './amenitiesConfig'
 
+// Convert miles to meters (assuming your GeoJSON properties are in meters)
+const LIMIT_WALK_METERS = 4828;  // 3 miles
+const LIMIT_CYCLE_METERS = 12070; // 7.5 miles
+
 export function calculateScore(
     distances: Record<string, number>,
     weights: Record<string, number>,
-    stats: { min: Record<string, number>; max: Record<string, number> }
+    activity: string // 'walk' or 'cycle'
 ): number {
 
-    // const total = weights.gp + weights.school + weights.park;
+    // Step 2: Normalise weights
     const totalWeight = AMENITIES.reduce((sum, amenity) => sum + weights[amenity.id], 0);
     
     if (totalWeight === 0) return 0;
 
-let totalScore = 0;
+    let score = 0;
+
+    // Set the appropriate distance limit based on the user's selected activity.
+    const distanceLimit = activity === 'cycle' ? LIMIT_CYCLE_METERS : LIMIT_WALK_METERS;
 
     // Loop through each amenity to calculate its portion of the score
     AMENITIES.forEach(amenity => {
         const id = amenity.id;
-        const w = weights[id] / totalWeight;
-        
-        const min = stats.min[id];
-        const max = stats.max[id];
-        const val = distances[id];
+        const w = weights[id] / totalWeight; // Normalised weight
+        const d = distances[id];
 
-        // 3. Normalise and invert (1 - distance)
-        let normalized = 0;
-        if (max > min) {
-            normalized = (val - min) / (max - min);
-        }
-        
-        const acc = 1 - normalized;
-        totalScore += (w * acc);
+        // Step 1: Absolute Distance to Accessibility Conversion
+        // Math.max ensures that if distance exceeds the limit, it stays at 0
+        const acc = Math.max(0, 1 - (d / distanceLimit));
+
+        // Step 3: Mode-Specific Accessibility Scores
+        score += (w * acc);
     });
 
-    // Multiply by 100 and round to 2 decimal places
-    return parseFloat((totalScore * 100).toFixed(2));
+    // Step 5: Final Score Normalisation (Multiply by 100 and round)
+    return parseFloat((score * 100).toFixed(2));
 }

@@ -21,7 +21,9 @@ function App() {
 		setMapLayers(prev => ({ ...prev, [layer]: !prev[layer] }))
 	}
 
+	// states for the dropdowns
 	const [city, setCity] = useState('cardiff');
+	const [activity, setActivity] = useState('walk');
 
 	// use settings from amenities config file
 	const initialWeights = AMENITIES.reduce((acc, amenity) => {
@@ -37,7 +39,7 @@ function App() {
 
 	// calculate accessibility score for every grid using the stats loaded from 'distance_to_3_amenities.geojson' 
 	// and weights the user has entered using the sliders
-	const { accessibilityScores}= useAccessibilityData(weights, city);
+	const { accessibilityScores}= useAccessibilityData(weights, city, activity);
 	
 	return (
 		<>
@@ -55,6 +57,8 @@ function App() {
 					updateWeight={updateWeight}
 					city={city}
 					setCity={setCity}
+					activity={activity}
+					setActivity={setActivity}
 				/>
 			</div>
 			<Footer />

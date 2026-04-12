@@ -10,8 +10,18 @@
     gap: 2rem
 }
 
+.dropdowns-container {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem
+}
+
 .all-likert-container {
     display: flex;
     flex-direction: column;
     gap: 1rem
+}
+
+.export-csv-button {
+    margin-top: 5px;
 }

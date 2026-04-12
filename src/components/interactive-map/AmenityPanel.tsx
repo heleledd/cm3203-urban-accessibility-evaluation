@@ -20,20 +20,21 @@ export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWei
 
     return (
         <div className="amenity-panel-container">
-            {/* dropdown to change which city is shown */}
-            <div className="city-dropdown-container">
-                <select value={city} onChange={(e) => setCity(e.target.value)}>
-                    <option value="cardiff">Cardiff</option>
-                    <option value="bristol">Bristol</option>
-                    <option value="swansea">Swansea</option>
-                </select>
-            </div>
+            <div className="dropdowns-container">
+                <div className="city-dropdown-container">
+                    <select value={city} onChange={(e) => setCity(e.target.value)}>
+                        <option value="cardiff">Cardiff</option>
+                        <option value="bristol">Bristol</option>
+                        <option value="swansea">Swansea</option>
+                    </select>
+                </div>
 
-            <div className="activity-dropdown-container">
-                <select value={activity} onChange={(e) => setActivity(e.target.value)}>
-                    <option value="walk">Walk</option>
-                    <option value="cycle">Cycle</option>
-                </select>
+                <div className="activity-dropdown-container">
+                    <select value={activity} onChange={(e) => setActivity(e.target.value)}>
+                        <option value="walk">Walk</option>
+                        <option value="cycle">Cycle</option>
+                    </select>
+                </div>
             </div>
             
             <h3>Indicate how important proximity to these amentities is to you</h3>
@@ -70,6 +71,7 @@ export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWei
                     </div>
                 ))}
             </div>
+
         </div>
     )
 }

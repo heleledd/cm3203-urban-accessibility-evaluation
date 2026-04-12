@@ -5,6 +5,7 @@ import InteractiveMap from './interactive-map/InteractiveMap.tsx'
 import AmenityPanel from './interactive-map/AmenityPanel.tsx'
 import { useAccessibilityData } from './helpers/useAccessibilityData'
 import { AMENITIES, type AmenityId } from './helpers/amenitiesConfig'
+import { exportComprehensiveCSV } from './helpers/exportScores'
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '../styles/app.css'
 
@@ -44,6 +45,12 @@ function App() {
 	return (
 		<>
 			<Header />
+			<button 
+                className="export-csv-button"
+				onClick={() => exportComprehensiveCSV(accessibilityScores, city, activity, weights)}
+            >
+                📊 Export Full Data (CSV)
+            </button>
 			<div className="display-container">
 				<InteractiveMap 
 					mapLayers={mapLayers}

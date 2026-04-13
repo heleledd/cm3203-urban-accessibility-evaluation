@@ -1,10 +1,12 @@
 .display-container {
     display: flex;
+    flex-direction: row;
     gap: 16px;
     padding: 16px
 }
 
 .amenity-panel-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 2rem
@@ -25,3 +27,11 @@
 .export-csv-button {
     margin-top: 5px;
 }
+
+.interactive-map-container{
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem
+}
+

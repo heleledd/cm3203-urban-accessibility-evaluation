@@ -155,70 +155,105 @@ export default function InteractiveMap(
         );
     }
 
-	return (
-		<Map
-			ref={mapRef}
-			initialViewState={{ longitude: -3.175, latitude: 51.501, zoom: 13 }}
-			style={{ width: '95%', height: '100vh' }}
-			mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-			onClick={handleClick}
-			interactiveLayerIds={['schools', 'parks', 'gp-practices', 'accessibility-score']}
-		>
-			{selectedFeature && (
-			<Popup
-			longitude={selectedFeature.longitude}
-			latitude={selectedFeature.latitude}
-			onClose={() => setSelectedFeature(null)}
-			closeOnClick={false}
-			>
-			<div>
-				<h3>Cell Stats</h3>
-				<h4>Accessibility Score: {selectedFeature.properties.accessibilityScore?.toFixed(2)}</h4>
-				{AMENITIES.map(amenity => (
-					<p key={amenity.id}>
-						Nearest {amenity.label.toLowerCase()}: {(selectedFeature.properties as any)[amenity.propertyKey]?.toFixed(2)}m
-					</p>
-				))}
-			</div>
-			</Popup>)}
 
-			{AMENITIES.map((amenity) => (
-				<Source key={amenity.id} id={amenity.id} type="geojson" data={`/${city}/${amenity.geoJsonName}.geojson`}>
-					<Layer 
-						id={`layer-${amenity.id}`}
-						type="line"
-						source={amenity.id}
-						paint={{ 'line-color': amenity.color, 'line-width': 2 }}
-						layout={{ visibility: mapLayers[amenity.id] ? 'visible' : 'none' }} 
+	return (
+		<div className="interactive-map-container">
+			<Map
+				ref={mapRef}
+				canvasContextAttributes={{ preserveDrawingBuffer: true }}
+				initialViewState={{ longitude: -3.175, latitude: 51.501, zoom: 13 }}
+				style={{ width: '95%', height: '100vh' }}
+				mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+				onClick={handleClick}
+				interactiveLayerIds={['schools', 'parks', 'gp-practices', 'accessibility-score']}
+			>
+				{selectedFeature && (
+				<Popup
+				longitude={selectedFeature.longitude}
+				latitude={selectedFeature.latitude}
+				onClose={() => setSelectedFeature(null)}
+				closeOnClick={false}
+				>
+				<div>
+					<h3>Cell Stats</h3>
+					<h4>Accessibility Score: {selectedFeature.properties.accessibilityScore?.toFixed(2)}</h4>
+					{AMENITIES.map(amenity => (
+						<p key={amenity.id}>
+							Nearest {amenity.label.toLowerCase()}: {(selectedFeature.properties as any)[amenity.propertyKey]?.toFixed(2)}m
+						</p>
+					))}
+				</div>
+				</Popup>)}
+
+				{AMENITIES.map((amenity) => (
+					<Source key={amenity.id} id={amenity.id} type="geojson" data={`/${city}/${amenity.geoJsonName}.geojson`}>
+						<Layer 
+							id={`layer-${amenity.id}`}
+							type="line"
+							source={amenity.id}
+							paint={{ 'line-color': amenity.color, 'line-width': 2 }}
+							layout={{ visibility: mapLayers[amenity.id] ? 'visible' : 'none' }} 
+						/>
+					</Source>
+				))}
+				{/* this isn't currently set up properly */}
+				<Source id="edges" type="geojson" data={`/${city}/edges.geojson`}>
+					<Layer {...roadLayer} layout={{ visibility: mapLayers.showStreetNetwork ? 'visible' : 'none' }} />
+				</Source>
+				
+				<Source id="accessibility-grid" type="geojson" data={accessibilityScores}>
+					<Layer
+						id="accessibility-score"
+						type="fill"
+						layout={{ visibility: mapLayers.showGrid ? 'visible' : 'none' }}
+						paint={{
+							'fill-color': [
+							'interpolate', ['linear'],
+							['get', 'accessibilityScore'],
+							0, '#ffffff',
+							1, '#800080',
+							10, '#8B0000',
+							30, '#ef4444',  
+							60, '#f97316',  
+							70, '#eab308',  
+							80, '#9deb56',  
+							90, '#22c55e',  
+							100, '#15803d',
+							],
+							'fill-opacity': 0.5
+						}}
 					/>
 				</Source>
-			))}
-			{/* this isn't currently set up properly */}
-			<Source id="edges" type="geojson" data={`/${city}/edges.geojson`}>
-				<Layer {...roadLayer} layout={{ visibility: mapLayers.showStreetNetwork ? 'visible' : 'none' }} />
-			</Source>
-			
-			<Source id="accessibility-grid" type="geojson" data={accessibilityScores}>
-				<Layer
-					id="accessibility-score"
-					type="fill"
-					layout={{ visibility: mapLayers.showGrid ? 'visible' : 'none' }}
-					paint={{
-						'fill-color': [
-						'interpolate', ['linear'],
-						['get', 'accessibilityScore'],
+			</Map>
+
+			<div className="map-buttons">
+					<div>
 						
-						30, '#ef4444',  
-						60, '#f97316',  
-						70, '#eab308',  
-						80, '#9deb56',  
-						90, '#22c55e',  
-						95, '#15803d',
-						],
-						'fill-opacity': 0.5
-					}}
-				/>
-			</Source>
-		</Map>
+						{/* The Gradient Bar */}
+						<div className="gradient-bar" 
+							style={{
+							display: 'flex',
+							height: '15px',
+							width: '100%',
+							background: 'linear-gradient(to right, #ef4444 30%, #f97316 60%, #eab308 70%, #9deb56 80%, #22c55e 90%, #15803d 95%)',
+							borderRadius: '4px'
+						}} 
+						/>
+						
+						{/* The Labels */}
+						<div style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							marginTop: '5px',
+							fontSize: '12px',
+							fontWeight: 'bold'
+						}}>
+							<span>&lt; 30</span>
+							<span>70</span>
+							<span>95+</span>
+						</div>
+					</div>
+			</div>
+		</div>
 	);
 }

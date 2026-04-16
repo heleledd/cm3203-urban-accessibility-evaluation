@@ -4,12 +4,14 @@ import logging
 import geopandas as gpd
 import osmnx as ox
 
+
 from config import (
     BBOX,
     GRID_SIZE_METERS,
     OUTPUT_DATA_DIR,
     PARK_BOUNDARY_PATH,
     PARK_ACCESS_POINTS_PATH,
+    BUILT_UP_AREA_PATH,
     TARGET_CRS,
     CITY,
     OSM_AMENITIES_CONFIG 
@@ -24,6 +26,7 @@ def main(
         grid_size=GRID_SIZE_METERS,
         park_access_points_path=PARK_ACCESS_POINTS_PATH,
         park_boundary_path=PARK_BOUNDARY_PATH,
+        built_up_area_path=BUILT_UP_AREA_PATH
     ):
     
     # load street network
@@ -87,9 +90,10 @@ def main(
             intersect = gpd.sjoin(centroids_gdf, data['gdf'], how='inner', predicate='intersects')
             grid_cells_gdf.loc[intersect.index, f'nearest_{name}'] = 0.0
 
-    # Filter water cells
-    logging.info("Fetching administrative boundary to filter cells...")
-    city_boundary = ox.geocode_to_gdf(CITY).to_crs(grid_cells_gdf.crs)
+    # Filter cells to just the built up area
+    logging.info(f"Loading built up area data from {built_up_area_path}...")
+    # read in the boundaries and save them in a geopandas dataframe
+    city_boundary = gpd.read_file(built_up_area_path).to_crs(TARGET_CRS)
     
     logging.info(f"Grid cells before filtering: {len(grid_cells_gdf)}")
     grid_cells_gdf = gpd.clip(grid_cells_gdf, city_boundary)

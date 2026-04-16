@@ -23,6 +23,11 @@ on:
         required: true
         default: 'cardiff_greenspace_sites.geojson'
         type: string
+      built_up_areas_file:
+        description: 'Filename for built-up areas (must be in data/input_dataA)'
+        required: true
+        default: 'cardiff_ONS_BUA.geojson'
+        type: string
 
 jobs:
   analysis:
@@ -55,6 +60,8 @@ jobs:
             CITY: ${{ inputs.city }}
             ACCESS_POINTS_FILE: ${{ inputs.park_access_points_file }}
             BOUNDARY_FILE: ${{ inputs.park_boundary_file }}
+            BUILT_UP_AREA_PATH: ${{ inputs.built_up_areas_file }}
+
         run: python src/main.py
 
       - name: Upload results

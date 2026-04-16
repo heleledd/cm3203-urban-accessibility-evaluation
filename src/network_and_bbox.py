@@ -82,5 +82,5 @@ def split_bbox_into_grid(bbox_reprojected, grid_size):
             y += grid_size
         x += grid_size
 
-        grid_gdf = gpd.GeoDataFrame(grid_cells, crs=TARGET_CRS)
-        return grid_gdf
+    grid_gdf = gpd.GeoDataFrame(grid_cells, crs=TARGET_CRS)
+    return grid_gdf

@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 TARGET_CRS = 'EPSG:27700'
 
 # Cardiff bounding box (west, south, east, north) in WGS84
@@ -11,7 +13,7 @@ TARGET_CRS = 'EPSG:27700'
 
 CITY = os.environ.get('CITY', 'Swansea, Wales, UK')
 
-bbox_string = os.environ.get('BBOX', '-3.278, 51.447, -3.066, 51.554')
+bbox_string = os.environ.get('BBOX')
 BBOX = tuple(float(coord.strip()) for coord in bbox_string.split(','))
 
 GRID_SIZE_METERS = 100
@@ -21,9 +23,11 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_DATA_DIR = os.path.join(SCRIPT_DIR, '../data/input_data')
 OUTPUT_DATA_DIR = os.path.join(SCRIPT_DIR, '../data/output')
 
-access_points_filename = os.environ.get('ACCESS_POINTS_FILE', 'cardiff_greenspace_access_points.geojson')
-boundary_filename = os.environ.get('BOUNDARY_FILE', 'cardiff_greenspace_sites.geojson')
+access_points_filename = os.environ.get('ACCESS_POINTS_FILE')
+boundary_filename = os.environ.get('BOUNDARY_FILE')
+built_up_area_filename = os.environ.get('BUILT_UP_AREA_FILE')
 
+BUILT_UP_AREA_PATH = os.path.join(INPUT_DATA_DIR, built_up_area_filename)
 PARK_ACCESS_POINTS_PATH = os.path.join(INPUT_DATA_DIR, access_points_filename)
 PARK_BOUNDARY_PATH = os.path.join(INPUT_DATA_DIR, boundary_filename)
 
@@ -57,5 +61,10 @@ OSM_AMENITIES_CONFIG = {
             'tags': {"amenity": "nightclub"},
             'check_intersection': False,
             'filename': 'nightclub.geojson'
+        },
+        'train_station': {
+            'tags': {"railway": "station"},
+            'check_intersection': False,
+            'filename': 'train_station.geojson'
         }
     }

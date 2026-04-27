@@ -1,0 +1,5 @@
+cache/
+.venv/
+geopackages/
+output/
+__pycache__

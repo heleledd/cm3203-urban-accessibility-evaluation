@@ -1,0 +1,72 @@
+name: Run Accessibility Analysis
+
+on:
+  workflow_dispatch:
+    inputs:
+      bbox:
+        description: 'Bounding box in WGS84 (west, south, east, north)'
+        required: true
+        default: '-3.196, 51.494, -3.180, 51.500'
+        type: string
+      city:
+        description: 'Which city is being analysed'
+        required: true
+        default: 'Cardiff, Wales, UK'
+        type: string
+      park_access_points_file:
+        description: 'Filename for access points (must be in data/input_data/)'
+        required: true
+        default: 'cardiff_greenspace_access_points.geojson'
+        type: string
+      park_boundary_file:
+        description: 'Filename for park boundaries (must be in data/input_data/)'
+        required: true
+        default: 'cardiff_greenspace_sites.geojson'
+        type: string
+      built_up_area_file:
+        description: 'Filename for built-up areas (must be in data/input_dataA)'
+        required: true
+        default: 'cardiff-ONS-BUA.geojson'
+        type: string
+
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libspatialindex-dev
+
+      - name: Install Python libraries
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run analysis script
+        env:
+            BBOX: ${{ inputs.bbox }}
+            CITY: ${{ inputs.city }}
+            ACCESS_POINTS_FILE: ${{ inputs.park_access_points_file }}
+            BOUNDARY_FILE: ${{ inputs.park_boundary_file }}
+            BUILT_UP_AREA_FILE: ${{ inputs.built_up_area_file }}
+
+        run: python src/main.py
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-results
+          path: data/output/
+          if-no-files-found: warn

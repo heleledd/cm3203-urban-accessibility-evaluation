@@ -5,7 +5,7 @@ import numpy as np
 
 scores_df = pd.read_csv('./outputs/accessibility_scores.csv')
 
-# Step 1 — encode city as True/False for city_Cardiff, city_Bristol and city_Swansea
+# encode city as True/False for city_Cardiff, city_Bristol and city_Swansea
 encoded_df = pd.get_dummies(scores_df, columns=['city'])
 
 print("Columns in encoded_df:", encoded_df.columns.tolist())
@@ -38,7 +38,7 @@ for persona, col in [('Arthur',        'score_arthur'),
     print('='*40)
     print(model.summary())
 
-# Step 3 — coefficient comparison table
+# coefficient comparison table
 rows = []
 for persona, model in results.items():
     row = {'Persona': persona}
@@ -55,17 +55,13 @@ coef_df = pd.DataFrame(rows).set_index('Persona')
 print("\nMean accessibility score by persona and city:")
 print(coef_df.round(2))
 
-# Save the corrected table!
 coef_df.to_csv('./outputs/mean_accessibility_by_city.csv')
 
-# ✅ Fixed: was pd.DataFrame(df) — should be pd.DataFrame(rows)
 coef_df = pd.DataFrame(rows).set_index('Persona')
 print("\nMean accessibility score by persona and city:")
 print(coef_df.round(2))
-# Save the mean accessibility scores table to a CSV
 coef_df.to_csv('./outputs/mean_accessibility_by_city.csv')
 
-# ✅ Fixed: initialise fig/axes before the loop
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
 axes = axes.flatten()
 
@@ -141,42 +137,42 @@ amenities = [
 ]
 
 
-# # PLOT COEFFICIENTS
-# personas = ['Arthur', 'Emma', 'Liam', 'Uniform']
-# colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+# PLOT COEFFICIENTS
+personas = ['Arthur', 'Emma', 'Liam', 'Uniform']
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
 
-# fig, ax = plt.subplots(figsize=(12, 7))
+fig, ax = plt.subplots(figsize=(12, 7))
 
-# y_positions = np.arange(len(amenities))
-# offsets = [-0.3, -0.1, 0.1, 0.3]  # spread personas vertically
+y_positions = np.arange(len(amenities))
+offsets = [-0.3, -0.1, 0.1, 0.3]  # spread personas vertically
 
-# for i, (persona, model) in enumerate(results.items()):
-#     coefs = [model.params[a] for a in amenities]
-#     cis = [model.conf_int().loc[a] for a in amenities]
-#     lower_errors = [coefs[j] - cis[j][0] for j in range(len(amenities))]
-#     upper_errors = [cis[j][1] - coefs[j] for j in range(len(amenities))]
+for i, (persona, model) in enumerate(results.items()):
+    coefs = [model.params[a] for a in amenities]
+    cis = [model.conf_int().loc[a] for a in amenities]
+    lower_errors = [coefs[j] - cis[j][0] for j in range(len(amenities))]
+    upper_errors = [cis[j][1] - coefs[j] for j in range(len(amenities))]
 
-#     ax.errorbar(
-#         coefs,
-#         y_positions + offsets[i],
-#         xerr=[lower_errors, upper_errors],
-#         fmt='o',
-#         label=persona,
-#         color=colors[i],
-#         capsize=3,
-#         linewidth=1.5,
-#         markersize=5
-#     )
+    ax.errorbar(
+        coefs,
+        y_positions + offsets[i],
+        xerr=[lower_errors, upper_errors],
+        fmt='o',
+        label=persona,
+        color=colors[i],
+        capsize=3,
+        linewidth=1.5,
+        markersize=5
+    )
 
-# ax.axvline(0, color='black', linewidth=0.8, linestyle='--')
-# ax.set_yticks(y_positions)
-# ax.set_yticklabels([a.replace('nearest_', '').replace('_', ' ').title() for a in amenities])
-# ax.set_xlabel('Regression Coefficient')
-# ax.set_title('Effect of Amenity Distance on Accessibility Score by Persona')
-# ax.legend(title='Persona')
-# plt.tight_layout()
-# plt.savefig('./outputs/coefficient_plot.png', dpi=150)
-# plt.show()
+ax.axvline(0, color='black', linewidth=0.8, linestyle='--')
+ax.set_yticks(y_positions)
+ax.set_yticklabels([a.replace('nearest_', '').replace('_', ' ').title() for a in amenities])
+ax.set_xlabel('Regression Coefficient')
+ax.set_title('Effect of Amenity Distance on Accessibility Score by Persona')
+ax.legend(title='Persona')
+plt.tight_layout()
+plt.savefig('./outputs/coefficient_plot.png', dpi=150)
+plt.show()
 
 
 threshold = scores_df[['score_arthur', 'score_emma', 'score_liam', 'score_uniform']].quantile(0.75)

@@ -1,13 +1,13 @@
 import { AMENITIES } from './amenitiesConfig'
 
 // Convert miles to meters (assuming your GeoJSON properties are in meters)
-const LIMIT_WALK_METERS = 4828;  // 3 miles
 const LIMIT_CYCLE_METERS = 12070; // 7.5 miles
 
 export function calculateScore(
     distances: Record<string, number>,
     weights: Record<string, number>,
-    activity: string // 'walk' or 'cycle'
+    activity: string, // 'walk' or 'cycle'
+    maxWalkDistance: number | string
 ): number {
 
     // Step 2: Normalise weights
@@ -18,7 +18,10 @@ export function calculateScore(
     let score = 0;
 
     // Set the appropriate distance limit based on the user's selected activity.
-    const distanceLimit = activity === 'cycle' ? LIMIT_CYCLE_METERS : LIMIT_WALK_METERS;
+    const distanceLimit = activity === 'cycle' ? LIMIT_CYCLE_METERS : Number(maxWalkDistance);
+
+    // Guard against division by zero
+    if (distanceLimit <= 0 || isNaN(distanceLimit)) return 0;
 
     // Loop through each amenity to calculate its portion of the score
     AMENITIES.forEach(amenity => {

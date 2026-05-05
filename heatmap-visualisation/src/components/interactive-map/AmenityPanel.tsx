@@ -10,8 +10,10 @@ interface AmenityPanelProps {
     setCity: (city: string) => void
     activity: string
     setActivity: (city: string) => void
+    maxWalkDistance: number | string
+    setMaxWalkDistance: (distance: number | string) => void
 }
-export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight, city, setCity, activity, setActivity}: AmenityPanelProps) {
+export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWeight, city, setCity, activity, setActivity, maxWalkDistance, setMaxWalkDistance}: AmenityPanelProps) {
 
     const BASE_LABELS: Record<string, string> = {
         showStreetNetwork: 'Street Network',
@@ -35,6 +37,17 @@ export default function AmenityPanel({mapLayers, toggleLayer, weights, updateWei
                         <option value="cycle">Cycle</option>
                     </select>
                 </div>
+            </div>
+
+            <div className="max-distance-container">
+                <label htmlFor="maxWalkDistance">Max Walking Distance (meters): </label>
+                <input 
+                    type="number" 
+                    id="maxWalkDistance"
+                    value={maxWalkDistance} 
+                    min="0"
+                    onChange={(e) => setMaxWalkDistance(e.target.value === '' ? 0 : Number(e.target.value))} 
+                />
             </div>
             
             <h3>Indicate how important proximity to these amentities is to you</h3>

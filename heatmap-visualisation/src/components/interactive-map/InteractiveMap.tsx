@@ -208,24 +208,23 @@ export default function InteractiveMap(
 						layout={{ visibility: mapLayers.showGrid ? 'visible' : 'none' }}
 						paint={{
 							'fill-color': [
-							'interpolate', ['linear'],
-							['get', 'accessibilityScore'],
-							0, '#ffffff',
-							1, '#800080',
-							10, '#8B0000',
-							30, '#ef4444',  
-							60, '#f97316',  
-							70, '#eab308',  
-							80, '#9deb56',  
-							90, '#22c55e',  
-							100, '#15803d',
-							],
+								'interpolate', ['linear'],
+								['get', 'accessibilityScore'],
+								0,  '#1e1b4b',  // very dark indigo — rare/empty
+								20, '#4338ca',  // indigo
+								40, '#0ea5e9',  // sky blue
+								55, '#10b981',  // emerald
+								70, '#84cc16',  // lime
+								82, '#facc15',  // amber
+								90, '#f97316',  // orange
+								100,'#dc2626',  // red — hotspot
+								],
 							'fill-opacity': 0.5
 						}}
 					/>
 				</Source>
 			</Map>
-
+	
 			<div className="map-buttons">
 					<div>
 						
@@ -235,7 +234,7 @@ export default function InteractiveMap(
 							display: 'flex',
 							height: '15px',
 							width: '100%',
-							background: 'linear-gradient(to right, #ef4444 30%, #f97316 60%, #eab308 70%, #9deb56 80%, #22c55e 90%, #15803d 95%)',
+							background: 'linear-gradient(to right, #1e1b4b, #4338ca, #0ea5e9, #10b981, #84cc16, #facc15, #dc2626)',
 							borderRadius: '4px'
 						}} 
 						/>

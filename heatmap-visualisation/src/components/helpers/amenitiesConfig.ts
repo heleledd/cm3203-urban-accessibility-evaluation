@@ -15,7 +15,7 @@ export const AMENITIES: AmenityConfig[] = [
     { id: 'fitness_centre', label: 'Fitness Centre', color: '#57cc99', defaultWeight: 3, geoJsonName: 'fitness_centre', propertyKey: 'nearest_leisure_centre' },
     { id: 'nightclub', label: 'Nightclub', color: '#57cc99', defaultWeight: 3, geoJsonName: 'nightclub', propertyKey: 'nearest_nightclub' },
     { id: 'supermarket', label: 'Supermarket', color: '#57cc99', defaultWeight: 3, geoJsonName: 'supermarket', propertyKey: 'nearest_supermarkets' },
-    { id: 'train_station', label: 'Train Station', color: '#57cc99', defaultWeight: 3, geoJsonName: 'train_station', propertyKey: 'nearest_train_station' },
+    { id: 'train_station', label: 'Train Station', color: '#57cc99', defaultWeight: 3, geoJsonName: 'train_station', propertyKey: 'nearest_train_station' }
 ];
 
 export type AmenityId = typeof AMENITIES[number]['id'];

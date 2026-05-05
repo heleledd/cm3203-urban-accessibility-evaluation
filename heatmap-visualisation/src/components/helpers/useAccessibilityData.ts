@@ -5,7 +5,8 @@ import { AMENITIES } from './amenitiesConfig'
 export function useAccessibilityData(
     weights: Record<string, number>, 
     city: string,
-    activity: string
+    activity: string,
+    maxWalkDistance: number | string
 ) {
     const [gridData, setGridData] = useState<GeoJSON.FeatureCollection | null>(null)
     
@@ -18,7 +19,7 @@ export function useAccessibilityData(
             })
     }, [city])
 
-    // Recalculate scores whenever weights or activity preference change
+    // Recalculate scores whenever weights or activity preference or walking limit change
     const accessibilityScores = useMemo<GeoJSON.FeatureCollection | null>(() => {
         if (!gridData) return null
 
@@ -34,12 +35,12 @@ export function useAccessibilityData(
                 });
 
                 // Step 1 through 4 of the accessibility score methodology are handled inside calculateScore
-                const score = calculateScore(distances, weights, activity);
+                const score = calculateScore(distances, weights, activity, maxWalkDistance);
 
                 return { ...feature, properties: { ...p, accessibilityScore: score } }
             })
         }
-    }, [weights, gridData, activity])
+    }, [weights, gridData, activity, maxWalkDistance])
 
     return { accessibilityScores }
 }

@@ -6,7 +6,7 @@ export default function Header() {
         <header>
             <div className="left-section">
                 <MapPin className="headerImage" />
-                <span className="header-title">accessibility tool</span>
+                <span className="header-title">Urban Accessibility: Decision Support Tool</span>
             </div>
         </header>
     )

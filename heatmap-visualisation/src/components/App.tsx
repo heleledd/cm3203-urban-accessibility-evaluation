@@ -16,6 +16,8 @@ function App() {
         return acc;
     }, { showStreetNetwork: false, showGrid: false } as Record<string, boolean>);
 	
+	const [maxWalkDistance, setMaxWalkDistance] = useState<number | string>(4828);
+
 	const [mapLayers, setMapLayers] = useState(initialMapLayers)
 
 	const toggleLayer = (layer: keyof typeof mapLayers) => {
@@ -38,9 +40,14 @@ function App() {
         setWeights(prev => ({ ...prev, [amenityId]: value }));
     };
 
-	// calculate accessibility score for every grid using the stats loaded from 'distance_to_3_amenities.geojson' 
+	// calculate accessibility score for every grid cell 
 	// and weights the user has entered using the sliders
-	const { accessibilityScores}= useAccessibilityData(weights, city, activity);
+	const { accessibilityScores} = useAccessibilityData(
+		weights, 
+		city, 
+		activity,
+		maxWalkDistance
+	);
 	
 	return (
 		<>
@@ -66,6 +73,8 @@ function App() {
 					setCity={setCity}
 					activity={activity}
 					setActivity={setActivity}
+					maxWalkDistance={maxWalkDistance}
+					setMaxWalkDistance={setMaxWalkDistance}
 				/>
 			</div>
 			<Footer />
